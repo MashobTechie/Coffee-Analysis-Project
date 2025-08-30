@@ -28,3 +28,9 @@ coffee_data$Ship.Date <- as.Date(coffee_data$Ship.Date, format = "%d/%m/%Y")
 
 # Check the new structure to confirm the changes
 str(coffee_data)
+
+# Check for missing values
+colSums(is.na(coffee_data))
+
+# Save the cleaned dataset
+write.csv(coffee_data, "./Data/Coffee_Cleaned.csv", row.names = FALSE)
