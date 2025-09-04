@@ -6,7 +6,7 @@ str(coffee_data)
 
 # Get a summary of the dataframe
 summary(coffee_data)
-
+ 
 # Show the first few rows of the dataframe
 head(coffee_data)
 
