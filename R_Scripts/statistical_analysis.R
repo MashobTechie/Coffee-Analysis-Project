@@ -13,4 +13,7 @@ anova_model <- aov(Sales ~ Region, data = coffee_data)
 # 4. View the results of the ANOVA test
 summary(anova_model)
 
-
+# Perform an ANOVA test to see if Sales are different across Categories
+anova_model_category <- aov(Sales ~ Category, data = coffee_data)
+# View the results
+summary(anova_model_category)
