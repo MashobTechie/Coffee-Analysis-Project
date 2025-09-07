@@ -1,0 +1,132 @@
+title: "Global Superstore Sales Forecasting" author: "Your Group Name" date: "r format(Sys.Date(), '%B %d, %Y')" output: html_document
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+1. Introduction
+This report details a time series analysis and forecasting project using a global superstore retail dataset. The primary objective is to prepare the raw transaction data, analyze its sales patterns over four years, and then use a time series model to forecast sales for the next seven days.
+
+2. Data Preparation for Time Series
+The initial raw data, which was already cleaned of data type and duplication errors in a previous step, was at the transactional level. To perform a time series analysis, it was aggregated to a daily level by summing sales for each unique date. Additionally, the dataset was checked for any missing dates to ensure the time series was continuous.
+
+The aggregation and data cleaning process is documented in the following code.
+
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+library(forecast)
+library(tseries)
+
+# Load the cleaned dataset
+coffee_data <- read.csv("../Data/Coffee_Cleaned.csv")
+
+# Ensure the Order.Date is in the correct format
+# The format is year-month-day
+coffee_data$Order.Date <- as.Date(coffee_data$Order.Date)
+
+# Aggregate sales to a daily level
+daily_sales <- coffee_data %>%
+  group_by(Order.Date) %>%
+  summarise(Total.Sales = sum(Sales)) %>%
+  ungroup()
+
+# Handle missing dates by creating a continuous date sequence
+daily_sales <- daily_sales[!is.na(daily_sales$Order.Date), ]
+full_date_range <- data.frame(Order.Date = seq(min(daily_sales$Order.Date), max(daily_sales$Order.Date), by = "day"))
+
+# Join the full date range with the sales data, filling in missing days with NA
+daily_sales <- left_join(full_date_range, daily_sales, by = "Order.Date")
+
+# Replace any NA values with 0
+daily_sales$Total.Sales[is.na(daily_sales$Total.Sales)] <- 0
+
+# Check the new structure to confirm changes
+str(daily_sales)
+
+Output: The str() output confirms a data frame with 1440 observations, representing 1440 days, with both the Order.Date and Total.Sales columns in the correct format.
+
+Code:
+
+colSums(is.na(daily_sales))
+last_date <- max(daily_sales$Order.Date)
+print(paste("The last date in the dataset is:", last_date))
+
+Output: The colSums(is.na(daily_sales)) output of 0 confirms that all missing sales values were successfully replaced, and the last date in the dataset is 2018-12-11.
+
+3. Exploratory Data Analysis (EDA)
+The next step in the analysis involved visualizing the sales data over time to identify underlying patterns such as trend and seasonality. This was done by converting the daily data into a time series object and plotting it.
+
+# Convert the data to a time series object
+start_date <- min(daily_sales$Order.Date)
+sales_ts <- ts(daily_sales$Total.Sales, start = c(as.numeric(format(start_date, "%Y")), as.numeric(format(start_date, "%j"))), frequency = 365)
+
+# Plot the time series
+plot(sales_ts, main = "Total Daily Sales", xlab = "Date", ylab = "Sales")
+
+# Decompose the time series to visualize trend, seasonality, and remainder
+sales_ts_decomp <- decompose(sales_ts)
+plot(sales_ts_decomp)
+
+Analysis: The Total Daily Sales plot reveals a clear upward trend over the four-year period, indicating consistent business growth. The decomposition plot further isolates this trend and also shows a strong yearly seasonal pattern, with sales typically peaking at the end of each year.
+
+4. Time Series Modeling & Forecasting
+An ARIMA model was chosen for forecasting due to its suitability for handling both trend and seasonal components in a time series. The auto.arima() function was used to automatically find the best-fitting model for the data, which was then used to forecast sales for the next seven days.
+
+# Fit an ARIMA model to the sales data
+fit_model <- auto.arima(sales_ts)
+
+# Use the model to forecast sales for the next 7 days
+forecast_sales <- forecast(fit_model, h = 7)
+
+# Print the forecast results
+print(forecast_sales)
+
+Forecast Output:
+
+     Point Forecast     Lo 80   Hi 80      Lo 95    Hi 95
+2018.9479   2679.423 1047.4609 4311.386   183.55210 5175.295
+2018.9507   2857.338 1170.3258 4544.351   277.27530 5437.402
+2018.9534   2806.794 1045.0039 4568.584   112.36847 5501.220
+2018.9562   2876.763 1044.2551 4709.270    74.18415 5679.341
+2018.9589   3215.432 1332.3031 5098.561   335.43479 6095.429
+2018.9616   2934.658  968.7919 4900.524  -71.87486 5941.191
+2018.9644   2944.318  876.2373 5012.399 -218.53871 6107.175
+
+Interpretation: The table shows the predicted sales for each of the next seven days (Point Forecast). The Lo and Hi columns represent the 80% and 95% confidence intervals, which indicate the range within which the actual sales are likely to fall.
+
+5. Conclusion
+This project successfully achieved its objectives by performing a complete time series analysis and forecasting. The data was effectively prepared, revealing a clear upward trend and a strong yearly seasonal pattern. An ARIMA model was successfully used to generate a 7-day sales forecast.
+
+Based on the model's predictions, the following sales values are expected for the next seven days:
+
+Day
+
+Point Forecast
+
+Day 1
+
+$2679.42
+
+Day 2
+
+$2857.34
+
+Day 3
+
+$2806.79
+
+Day 4
+
+$2876.76
+
+Day 5
+
+$3215.43
+
+Day 6
+
+$2934.66
+
+Day 7
+
+$2944.32
+
+These findings can be used by the business to make data-driven decisions regarding inventory management, staffing, and marketing for the upcoming week.
