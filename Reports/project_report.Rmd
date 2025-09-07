@@ -97,36 +97,15 @@ This project successfully achieved its objectives by performing a complete time 
 
 Based on the model's predictions, the following sales values are expected for the next seven days:
 
-Day
+Day          Point Forecast
+Day 1        $2679.42
+Day 2        $2857.34
+Day 3        $2806.79
+Day 4        $2876.76
+Day 5        $3215.43
+Day 6        $2934.66
+Day 7        $2944.32
 
-Point Forecast
 
-Day 1
-
-$2679.42
-
-Day 2
-
-$2857.34
-
-Day 3
-
-$2806.79
-
-Day 4
-
-$2876.76
-
-Day 5
-
-$3215.43
-
-Day 6
-
-$2934.66
-
-Day 7
-
-$2944.32
 
 These findings can be used by the business to make data-driven decisions regarding inventory management, staffing, and marketing for the upcoming week.
